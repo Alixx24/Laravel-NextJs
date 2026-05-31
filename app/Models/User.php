@@ -2,32 +2,36 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
+use App\Models\Advertise\Advertisement;
+use App\Models\Advertise\AdvertisementNote;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'mobile',
+        'mobile_verified_at',
+        'city_id',
+        'email_verified_at'
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -45,5 +49,27 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function advertisements()
+    {
+        return $this->hasMany(Advertisement::class);
+    }
+
+    public function favoriteAdvertisements()
+    {
+        return $this->belongsToMany(Advertisement::class)->withTimestamps();
+    }
+
+
+    public function advertisementNotes()
+    {
+        return $this->hasMany(AdvertisementNote::class);
+    }
+
+
+    public function viewedAdvertisements()
+    {
+        return $this->belongsToMany(Advertisement::class, 'advertisement_view_history')->withTimestamps();
     }
 }
